@@ -1,27 +1,20 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
-import pickle
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 from app.config import settings
-from app.logging_config import logger
+from app.services.model_loader import load_model
 
 
 @asynccontextmanager
 async def lifespan(app):
-    
-    logger.info("Loading artifacts...")
 
-    app.state.movies = pickle.load(
-        open(settings.ARTIFACT_DIR / "movies.pkl", "rb")
+    print("Loading MLflow model...")
+
+    load_model(
+        settings.MLFLOW_MODEL_URI
     )
 
-    app.state.similarity = pickle.load(
-        open(settings.ARTIFACT_DIR / "similarity.pkl", "rb")
-    )
-
-    print("Artifacts loaded successfully.")
+    print("Model loaded.")
 
     yield
 
-    print("Application shutting down...")
+    print("Shutting down...")
