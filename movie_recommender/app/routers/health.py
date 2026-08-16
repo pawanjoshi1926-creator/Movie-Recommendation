@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from app.dependencies.model import  get_model
 
 router = APIRouter(
     tags=["Health"]
@@ -11,7 +13,16 @@ def home():
     }
 
 @router.get("/health")
-def health():
+def health(model=Depends(get_model)):
+
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "model_loaded": model is not None
     }
+
+import mlflow
+
+
+def get_model_version():
+
+    return "1"
