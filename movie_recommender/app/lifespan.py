@@ -1,20 +1,28 @@
 from contextlib import asynccontextmanager
 
+from app.services.model_loader import load_artifacts
+
+from app.logging_config import logger
 from app.config import settings
-from app.services.model_loader import load_model
 
 
 @asynccontextmanager
 async def lifespan(app):
 
-    print("Loading MLflow model...")
-
-    load_model(
-        settings.MLFLOW_MODEL_URI
+    logger.info(
+        f"Loading model version: {settings.MODEL_VERSION}"
     )
 
-    print("Model loaded.")
+    try:
+        load_artifacts()
 
-    yield
+        logger.info(
+            "Artifacts loaded successfully."
+        )
 
-    print("Shutting down...")
+        yield
+
+    finally:
+        logger.info(
+            "Application shutting down."
+        )
