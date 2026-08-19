@@ -1,6 +1,11 @@
-from app.services.model_loader import model
+# app/dependencies/model.py
+
+import app.services.model_loader as model_loader
 
 
-def get_model():
+def get_movies():
+    return model_loader.movies
 
-    return model
+
+def get_similarity():
+    return model_loader.similarity
