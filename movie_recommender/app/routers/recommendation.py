@@ -1,25 +1,44 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.dependencies.model import  get_model
-from app.recommender import recommend
-from app.schemas import RecommendationResponse
+from app.services.recommender import recommend
+from app.exceptions import MovieNotFoundException
+
+from app.dependencies.model import (
+    get_movies,
+    get_similarity
+)
 
 router = APIRouter(
     prefix="/api/v1",
     tags=["Recommendation"]
 )
 
-
 @router.get("/recommend")
-def recommend_movie(
-    movie: str,
-    model=Depends(get_model)
-):
+def get_recommendations(movie: str):
 
-    result = model.predict(
-        {
-            "movie": [movie]
+    movies = get_movies()
+    similarity = get_similarity()
+
+    try:
+
+        result = recommend(
+            movie,
+            movies,
+            similarity
+        )
+
+        return {
+            "success": True,
+            **result
         }
-    )
 
-    return result
+    except MovieNotFoundException as e:
+
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "success": False,
+                "message": f"Movie '{e.movie_name}' not found",
+                "suggestions": e.suggestions
+            }
+        )
