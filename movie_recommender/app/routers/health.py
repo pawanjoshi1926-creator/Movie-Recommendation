@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from app.dependencies.model import  get_model
+from app.dependencies.model import (
+    get_movies,
+    get_similarity
+)
+from app.config import settings
 
 router = APIRouter(
     tags=["Health"]
@@ -13,11 +17,12 @@ def home():
     }
 
 @router.get("/health")
-def health(model=Depends(get_model)):
+def health_check():
 
     return {
         "status": "healthy",
-        "model_loaded": model is not None
+        "model_version": settings.MODEL_VERSION,
+        "app_version": settings.VERSION
     }
 
 import mlflow
